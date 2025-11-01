@@ -14,10 +14,10 @@
             <p>FREE SHIPPING ON ORDERS OVER $50 | SIGN UP FOR 10% OFF YOUR FIRST ORDER</p>
         </div> -->
         <div class="main-header">
-            <div class="logo">STYLEHUB</div>
+            <div class="logo"><i class="fas fa-gem"></i> STYLEHUB</div>
             <div class="search-bar">
-                <input type="text" placeholder="Search for products...">
-                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search for products...">
+                <i class="fas fa-search" id="search-btn"></i>
             </div>
             <div class="nav-icons">
                 <a href="#" id="account-link"><i class="far fa-user"></i> Account</a>
@@ -40,30 +40,73 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <h1>SUMMER SALE UP TO 50% OFF</h1>
-        <p>Discover the latest trends and refresh your wardrobe with our new collection</p>
-        <button class="cta-button">SHOP NOW</button>
+    <section class="hero-new">
+        <div class="hero-new-content">
+            <div class="hero-new-text">
+                <span class="hero-new-subtitle">New Season, New Look</span>
+                <h1 class="hero-new-title">Urban Essentials Collection</h1>
+                <p class="hero-new-description">
+                    Step up your style game with our curated collection of modern essentials.
+                    From city streets to weekend getaways, find your perfect look.
+                </p>
+                <button class="cta-button">EXPLORE COLLECTION</button>
+            </div>
+            <div class="hero-new-image">
+                <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b" alt="Fashion Collection">
+            </div>
+        </div>
+    </section>
+
+    <!-- New Promotional Banner -->
+    <section class="promo-banner">
+        <div class="container">
+            <p><strong>FREE SHIPPING</strong> on all orders over $50! Limited time offer.</p>
+        </div>
+    </section>
+
+    <!-- New Category Highlights Section -->
+    <section class="category-highlights">
+        <h2 class="section-title">SHOP BY CATEGORY</h2>
+        <div class="categories-grid">
+            <a href="#" class="category-card" data-filter="women">
+                <img src="https://images.unsplash.com/photo-1523359402-871706b292a1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Women's Collection">
+                <h3>Women</h3>
+            </a>
+            <a href="#" class="category-card" data-filter="men">
+                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Men's Collection">
+                <h3>Men</h3>
+            </a>
+            <a href="#" class="category-card" data-filter="accessories">
+                <img src="https://images.unsplash.com/photo-1585321702138-ba8e865b1e61?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Accessories Collection">
+                <h3>Accessories</h3>
+            </a>
+        </div>
     </section>
 
     <!-- Featured Products -->
-    <h2 class="section-title">FEATURED PRODUCTS</h2>
-    <div class="filters">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="women">Women</button>
-        <button class="filter-btn" data-filter="men">Men</button>
-        <button class="filter-btn" data-filter="accessories">Accessories</button>
-    </div>
-    
-    <!-- Loading Spinner -->
-    <div id="loading-spinner" class="loading-spinner">
-        <div class="spinner"></div>
-        <p>Loading products...</p>
-    </div>
+    <section class="featured-products-section">
+        <h2 class="section-title">FEATURED PRODUCTS</h2>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="women">Women</button>
+            <button class="filter-btn" data-filter="men">Men</button>
+            <button class="filter-btn" data-filter="accessories">Accessories</button>
+        </div>
+        
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading products...</p>
+        </div>
 
-    <div class="products-grid" id="products-grid">
-        <!-- Products will be loaded here via JavaScript -->
-    </div>
+        <div class="products-grid" id="products-grid">
+            <!-- Products will be loaded here via JavaScript -->
+        </div>
+
+        <div class="load-more-container">
+            <button class="load-more-btn" id="load-more-btn">Load More</button>
+        </div>
+    </section>
 
     <!-- Login Modal -->
     <div id="login-modal" class="modal">
@@ -91,6 +134,15 @@
                 <button type="submit">CREATE ACCOUNT</button>
             </form>
             <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+        </div>
+    </div>
+
+    <!-- Orders Modal -->
+    <div id="orders-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>My Orders</h2>
+            <div id="orders-list"></div>
         </div>
     </div>
 

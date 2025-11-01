@@ -5,6 +5,9 @@ const API_BASE_URL = 'http://localhost:3001/api';
 let products = [];
 let cart = [];
 let currentUser = null;
+let currentlyDisplayedProducts = []; // Keep track of what's on screen
+let currentPage = 1;
+const productsPerPage = 8; // Number of products to show per page
 
 // DOM Elements
 const productsGrid = document.getElementById('products-grid');
@@ -18,12 +21,17 @@ const filterBtns = document.querySelectorAll('.filter-btn');
 const loadingSpinner = document.getElementById('loading-spinner');
 const loginModal = document.getElementById('login-modal');
 const registerModal = document.getElementById('register-modal');
+const ordersModal = document.getElementById('orders-modal');
 const accountLink = document.getElementById('account-link');
 const showRegister = document.getElementById('show-register');
 const showLogin = document.getElementById('show-login');
 const closeModals = document.querySelectorAll('.close-modal');
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
+const searchInput = document.getElementById('search-input');
+const searchBtn = document.getElementById('search-btn');
+const loadMoreBtn = document.getElementById('load-more-btn'); // New
+const categoryCards = document.querySelectorAll('.category-card'); // New
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -49,7 +57,10 @@ function setupEventListeners() {
             filterBtns.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             const filter = button.getAttribute('data-filter');
-            displayProducts(filter);
+            const filteredProducts = filter === 'all' 
+                ? products 
+                : products.filter(product => product.category === filter);
+            displayProducts(filteredProducts);
         });
     });
 
@@ -64,8 +75,28 @@ function setupEventListeners() {
                 if (filterButton) {
                     filterButton.classList.add('active');
                 }
-                displayProducts(category);
+                const filteredProducts = category === 'all'
+                    ? products
+                    : products.filter(product => product.category === category);
+                displayProducts(filteredProducts);
             }
+        });
+    });
+
+    // New: Category card filters
+    categoryCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const filter = card.getAttribute('data-filter');
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            const filterButton = document.querySelector(`.filter-btn[data-filter="${filter}"]`);
+            if (filterButton) {
+                filterButton.classList.add('active');
+            }
+            const filteredProducts = filter === 'all'
+                ? products
+                : products.filter(product => product.category === filter);
+            displayProducts(filteredProducts);
         });
     });
 
@@ -95,6 +126,7 @@ function setupEventListeners() {
         closeBtn.addEventListener('click', () => {
             hideLoginModal();
             hideRegisterModal();
+            hideOrdersModal();
         });
     });
 
@@ -102,11 +134,25 @@ function setupEventListeners() {
     loginForm.addEventListener('submit', handleLogin);
     registerForm.addEventListener('submit', handleRegister);
 
+    // Search
+    searchBtn.addEventListener('click', handleSearch);
+    searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
+
     // Close modals when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target === loginModal) hideLoginModal();
         if (e.target === registerModal) hideRegisterModal();
+        if (e.target === ordersModal) hideOrdersModal();
     });
+
+    // New: Load More button
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMoreProducts);
+    }
 }
 
 // API Functions
@@ -116,7 +162,7 @@ async function loadProducts() {
         const response = await fetch(`${API_BASE_URL}/products`);
         if (!response.ok) throw new Error('Failed to load products');
         products = await response.json();
-        displayProducts('all');
+        displayProducts(products); // Initial display with pagination
         hideLoading();
     } catch (error) {
         console.error('Error loading products:', error);
@@ -140,22 +186,48 @@ async function loadCart() {
 }
 
 // Product Display
-function displayProducts(filter = 'all') {
+function displayProducts(productsToDisplay) {
+    currentlyDisplayedProducts = productsToDisplay;
     productsGrid.innerHTML = '';
+    currentPage = 1;
     
-    const filteredProducts = filter === 'all' 
-        ? products 
-        : products.filter(product => product.category === filter);
-    
-    if (filteredProducts.length === 0) {
-        productsGrid.innerHTML = '<p class="no-products">No products found in this category.</p>';
+    if (currentlyDisplayedProducts.length === 0) {
+        productsGrid.innerHTML = '<p class="no-products">No products found.</p>';
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
         return;
     }
     
-    filteredProducts.forEach(product => {
+    const productsToShow = currentlyDisplayedProducts.slice(0, productsPerPage);
+    productsToShow.forEach(product => {
         const productCard = createProductCard(product);
         productsGrid.appendChild(productCard);
     });
+
+    if (loadMoreBtn) {
+        if (currentlyDisplayedProducts.length > productsPerPage) {
+            loadMoreBtn.style.display = 'block';
+        } else {
+            loadMoreBtn.style.display = 'none';
+        }
+    }
+}
+
+function loadMoreProducts() {
+    currentPage++;
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = currentPage * productsPerPage;
+    const productsToAdd = currentlyDisplayedProducts.slice(startIndex, endIndex);
+
+    productsToAdd.forEach(product => {
+        const productCard = createProductCard(product);
+        productsGrid.appendChild(productCard);
+    });
+
+    if (loadMoreBtn) {
+        if (endIndex >= currentlyDisplayedProducts.length) {
+            loadMoreBtn.style.display = 'none';
+        }
+    }
 }
 
 function createProductCard(product) {
@@ -282,7 +354,7 @@ function updateCartDisplay() {
                 <img src="${item.productId.image}" alt="${item.productId.name}" class="cart-item-image">
                 <div class="cart-item-details">
                     <h4 class="cart-item-title">${item.productId.name}</h4>
-                    <p class="cart-item-price">$${item.productId.price.toFixed(2)}</p>
+                    <p class="cart-item-price">$${parseFloat(item.productId.price).toFixed(2)}</p>
                     <div class="quantity-controls">
                         <button class="quantity-btn minus" data-id="${productId}">-</button>
                         <span>${item.quantity}</span>
@@ -457,6 +529,14 @@ function hideRegisterModal() {
     registerModal.style.display = 'none';
 }
 
+function showOrdersModal() {
+    ordersModal.style.display = 'block';
+}
+
+function hideOrdersModal() {
+    ordersModal.style.display = 'none';
+}
+
 function showUserMenu() {
     // Create user dropdown menu
     const userMenu = document.createElement('div');
@@ -505,8 +585,61 @@ function showUserMenu() {
     }, 0);
 }
 
-function viewOrders() {
-    showNotification('Order history feature coming soon!');
+async function viewOrders() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/orders`, {
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch orders');
+        }
+
+        const orders = await response.json();
+        displayOrders(orders);
+        showOrdersModal();
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        showNotification('Failed to load your orders. Please try again.', 'error');
+    }
+}
+
+function displayOrders(orders) {
+    const ordersList = document.getElementById('orders-list');
+    ordersList.innerHTML = '';
+
+    if (orders.length === 0) {
+        ordersList.innerHTML = '<p>You have no past orders.</p>';
+        return;
+    }
+
+    orders.forEach(order => {
+        const orderElement = document.createElement('div');
+        orderElement.className = 'order-history-item';
+
+        const orderItemsHtml = order.items.map(item => `
+            <div class="order-item-detail">
+                <span>${item.quantity} x Product ID: ${item.productId}</span>
+                <span>$${parseFloat(item.price).toFixed(2)}</span>
+            </div>
+        `).join('');
+
+        orderElement.innerHTML = `
+            <div class="order-history-header">
+                <h4>Order #${order.id}</h4>
+                <span>${new Date(order.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div class="order-history-body">
+                <p><strong>Status:</strong> ${order.status}</p>
+                <p><strong>Total:</strong> $${parseFloat(order.total).toFixed(2)}</p>
+                <div class="order-items-summary">
+                    <strong>Items:</strong>
+                    ${orderItemsHtml}
+                </div>
+            </div>
+        `;
+        ordersList.appendChild(orderElement);
+    });
 }
 
 function handleLogout() {
@@ -568,6 +701,21 @@ function showNotification(message, type = 'success') {
             setTimeout(() => notification.remove(), 300);
         }
     }, 3000);
+}
+
+function handleSearch() {
+    const searchTerm = searchInput.value.toLowerCase();
+    
+    if (searchTerm.trim() === '') {
+        displayProducts(products);
+        return;
+    }
+
+    const filteredProducts = products.filter(product => 
+        product.name.toLowerCase().includes(searchTerm)
+    );
+    
+    displayProducts(filteredProducts);
 }
 
 async function proceedToCheckout() {
