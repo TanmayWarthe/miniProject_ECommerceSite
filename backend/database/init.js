@@ -1,14 +1,18 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-const connection = mysql.createConnection({
-    host: process.env.MYSQL_HOST || process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+const dbConfig = {
+    host: process.env.MYSQL_HOST || process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
     user: process.env.MYSQL_USER || process.env.MYSQLUSER || process.env.DB_USER || 'root',
     password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || ''
-});
+};
 
 async function initializeDatabase() {
+    let connection;
     try {
+        connection = await mysql.createConnection(dbConfig);
+        await connection.connect();
+        
         // Create database if it doesn't exist
         await connection.promise().query(
             `CREATE DATABASE IF NOT EXISTS ${process.env.MYSQL_DATABASE || process.env.DB_NAME || 'ecommerce_db'}`
@@ -192,9 +196,19 @@ async function initializeDatabase() {
 
     } catch (error) {
         console.error('❌ Database initialization failed:', error);
+        throw error;
     } finally {
-        connection.end();
+        if (connection && connection.end) {
+            await connection.end().catch(err => console.error('Error closing connection:', err));
+        }
     }
 }
 
-initializeDatabase();
+if (require.main === module) {
+    initializeDatabase().catch(error => {
+        console.error("Error running database initialization:", error);
+        process.exit(1);
+    });
+}
+
+module.exports = { initializeDatabase };
