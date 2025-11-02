@@ -33,7 +33,7 @@ ecommerce-app/
 ### Backend
 - Node.js
 - Express.js
-- MongoDB
+- MySQL 
 - JSON Web Tokens (JWT) for authentication
 
 ### Frontend
@@ -45,7 +45,6 @@ ecommerce-app/
 
 ### Prerequisites
 - Node.js (v14 or higher)
-- MongoDB
 
 ### Installation Steps
 
