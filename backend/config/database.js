@@ -3,7 +3,7 @@ require('dotenv').config();
 
 // Create MySQL connection pool
 const pool = mysql.createPool({
-    host: process.env.MYSQL_HOST || process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
+    host: process.env.RENDER_MYSQL_HOST || process.env.MYSQL_HOST || process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
     user: process.env.MYSQL_USER || process.env.MYSQLUSER || process.env.DB_USER || 'root',
     password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
     database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'ecommerce_db',
