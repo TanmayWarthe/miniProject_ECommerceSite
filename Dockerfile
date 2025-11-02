@@ -15,4 +15,4 @@ COPY frontend/ ./public/
 EXPOSE 3000
 
 # Run init-db and start the server
-CMD ["sh", "-c", "npm run init-db && npm start"]
+CMD ["sh", "-c", "echo '--- ENV VARS ---' && printenv && echo '--- END ENV VARS ---' && npm run init-db && npm start"]
