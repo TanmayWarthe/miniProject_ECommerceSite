@@ -2,22 +2,22 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 const connection = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || ''
+    host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || ''
 });
 
 async function initializeDatabase() {
     try {
         // Create database if it doesn't exist
         await connection.promise().query(
-            `CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'ecommerce_db'}`
+            `CREATE DATABASE IF NOT EXISTS ${process.env.MYSQLDATABASE || process.env.DB_NAME || 'ecommerce_db'}`
         );
         console.log('✅ Database created or already exists');
 
         // Switch to the database
         await connection.promise().query(
-            `USE ${process.env.DB_NAME || 'ecommerce_db'}`
+            `USE ${process.env.MYSQLDATABASE || process.env.DB_NAME || 'ecommerce_db'}`
         );
 
         // Create users table
