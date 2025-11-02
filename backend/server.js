@@ -14,6 +14,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 app.use(cors());
 app.use(express.json());
 
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Test database connection on startup
 testConnection();
 
@@ -458,6 +461,10 @@ app.get('/api/health', async (req, res) => {
             error: error.message 
         });
     }
+});
+
+app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start server

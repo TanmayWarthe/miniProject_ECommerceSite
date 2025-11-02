@@ -115,3 +115,41 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 For any queries or support, please reach out to [Tanmay Warthe]
+
+## Run locally with Docker (MySQL + Node)
+
+If you want to run the full stack locally using Docker (recommended), there's a docker-compose that starts MySQL and the backend. The backend will initialize the database schema and insert sample products on first run.
+
+1. Copy the example env file and edit values if you want:
+
+```powershell
+cd backend
+copy .env.example .env
+# (edit .env as needed)
+cd ..
+```
+
+2. Start services with docker-compose (from the project root):
+
+```powershell
+docker-compose up --build
+```
+
+3. The backend will be available at http://localhost:3000 and the MySQL server at port 3306.
+
+4. To run the DB initialization manually (after MySQL is ready):
+
+```powershell
+docker-compose exec backend npm run init-db
+```
+
+Notes:
+- The compose file exposes MySQL on host port 3306 and the backend on 3000.
+- Change `docker-compose.yml` environment values for production (strong passwords, secrets).
+- This setup initializes the DB using the project's `database/init.js` script. That script creates the database, tables and sample data.
+
+## Deployment options (short)
+
+- For a managed platform that supports Docker (Render, Railway, Fly.io): build the backend container and provide a managed MySQL add-on or external RDS instance.
+- For a VPS or cloud VM: use Docker + docker-compose on the server and reverse-proxy (nginx) for TLS.
+- If you prefer platform-managed CI/CD, I can add a GitHub Actions workflow that builds the image and deploys to your chosen provider.
