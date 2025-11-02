@@ -4,7 +4,7 @@ require('dotenv').config();
 const dbConfig = {
     host: process.env.MYSQL_HOST || process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
     user: process.env.MYSQL_USER || process.env.MYSQLUSER || process.env.DB_USER || 'root',
-    password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || ''
+    password: process.env.MYSQL_PASSWORD || process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || 'STW@0427'
 };
 
 async function initializeDatabase() {
